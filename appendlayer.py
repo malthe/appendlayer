@@ -125,5 +125,9 @@ def run(host, repository, old_tag, new_tag):
     )
 
 
-if __name__ == "__main__":
+def main():
     run(*sys.argv[1:])
+
+
+if __name__ == "__main__":
+    main()
