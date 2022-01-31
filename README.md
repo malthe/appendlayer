@@ -40,6 +40,10 @@ Incidentally, the script was designed exactly with [Apache
 Airflow](https://airflow.apache.org/) in mind.
 
 
+Note that Buildkit [will have support for
+this](https://github.com/moby/buildkit/issues/2414) from v0.10 but
+it's not clear how this will be supported in a Dockerfile.
+
 ### Installation
 
 Install the tool using pip:
