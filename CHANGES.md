@@ -1,7 +1,7 @@
 Changes
 =======
 
-1.1 (unreleased)
+1.1 (2022-09-29)
 ----------------
 
 - Added support for specifying different source and destination
