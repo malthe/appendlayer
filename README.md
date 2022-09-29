@@ -73,25 +73,39 @@ $ echo "Hello world" > test.txt
 $ tar cvf - test.txt | appendlayer <host> <repository> <old-tag> <new-tag>
 ```
 
+Alternatively, qualify source and destination using image syntax:
+```bash
+$ tar cvf - test.txt | appendlayer <host> <old-repository>:<old-tag> <new-repository>:<new-tag>
+```
+
+Or even across different hosts:
+```bash
+$ tar cvf - test.txt | appendlayer <old-host>/<old-repository>:<old-tag> <new-host>/<new-repository>:<new-tag>
+```
+
 For Azure Container Registry (ACR) for example, the _host_ is
 typically `<registry-name>.azurecr.io`.
 
 
 ### Authentication
 
-The script reads an OAuth2 refresh token from the `REFRESH_TOKEN`
-environment variable.
+The script uses OAuth2 to authorize requests to the container
+registry. This is configured using either the `ACCESS_TOKEN` or
+`REFRESH_TOKEN` environment variable.
 
 For example, for [Azure Container
-Registry](https://azure.microsoft.com/en-us/services/container-registry/):
+Registry](https://azure.microsoft.com/en-us/services/container-registry/),
+to authorize to a specific container registry.
 
 ```bash
 $ export REFRESH_TOKEN=$( \
-      az acr login -t --name <registry-name>.azurecr.io 2>/dev/null | \
-      jq -r .accessToken)
+      az acr login -t --name <registry-name>.azurecr.io \
+      --expose-token --output tsv --query accessToken)
 ```
 
-The snippet above requires the [jq
-utility](https://stedolan.github.io/jq/) to print out the access
-token, but one might craft something similar using
-[sed](https://www.gnu.org/software/sed/manual/sed.html).
+To authorize across multiple registries, use an access token:
+
+```bash
+$ export ACCESS_TOKEN=$( \
+       az account get-access-token --query accessToken --output tsv)
+```
