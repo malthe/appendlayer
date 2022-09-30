@@ -90,8 +90,12 @@ typically `<registry-name>.azurecr.io`.
 ### Authentication
 
 The script uses OAuth2 to authorize requests to the container
-registry. This is configured using either the `ACCESS_TOKEN` or
-`REFRESH_TOKEN` environment variable.
+registry.
+
+This is configured using either the `ACCESS_TOKEN` or `REFRESH_TOKEN`
+environment variable, or by extracting a refresh token from the Docker
+configuration file (located based on the `DOCKER_CONFIG` environment
+variable).
 
 For example, for [Azure Container
 Registry](https://azure.microsoft.com/en-us/services/container-registry/),

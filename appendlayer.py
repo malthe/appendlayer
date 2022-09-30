@@ -44,18 +44,39 @@ def make_req_json(*args, **kwargs):
     return parse(make_req(*args, **kwargs))
 
 
+def extract_refresh_token_from_docker_config(host):
+    try:
+        docker_config = os.environ["DOCKER_CONFIG"]
+    except KeyError:
+        LOGGER.info("The DOCKER_CONFIG environment variable is not set")
+        return
+
+    path = os.path.join(docker_config, "config.json")
+    with open(path) as f:
+        config = loads(f.read())
+
+    try:
+        return config.get("auths", {}).get(host).get("identitytoken")
+    except KeyError:
+        LOGGER.info("Identity token not found for %s", host)
+        return
+
+
 def authenticate(host, scope):
     headers = {"Content-Type": "application/x-www-form-urlencoded"}
     refresh_token = REFRESH_TOKEN
     if refresh_token is None:
-        r = make_req_json(
-            host,
-            "/oauth2/exchange",
-            method="POST",
-            data=f"grant_type=access_token&access_token={ACCESS_TOKEN}&service={host}".encode("ascii"),
-            **headers,
-        )
-        refresh_token = r["refresh_token"]
+        if ACCESS_TOKEN:
+            r = make_req_json(
+                host,
+                "/oauth2/exchange",
+                method="POST",
+                data=f"grant_type=access_token&access_token={ACCESS_TOKEN}&service={host}".encode("ascii"),
+                **headers,
+            )
+            refresh_token = r["refresh_token"]
+        else:
+            refresh_token = extract_refresh_token_from_docker_config(host)
 
     r = make_req_json(
         host,

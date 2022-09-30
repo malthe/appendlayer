@@ -3,6 +3,9 @@ Changes
 
 In next release ...
 
+- Add support for extracting refresh token from stored Docker
+  credentials.
+
 - Fix bug where two different repositories would not correctly get
   authorized for the destination registry.
 
