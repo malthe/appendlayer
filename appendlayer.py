@@ -4,6 +4,7 @@ import sys
 import logging
 
 from _thread import interrupt_main
+from base64 import b64decode
 from gzip import compress
 from hashlib import sha256
 from json import dumps, loads
@@ -13,6 +14,7 @@ from threading import Semaphore, Thread
 from traceback import print_exc
 
 from urllib.error import HTTPError
+from urllib.parse import urlencode
 from urllib.request import (
     Request,
     urlopen,
@@ -44,7 +46,7 @@ def make_req_json(*args, **kwargs):
     return parse(make_req(*args, **kwargs))
 
 
-def extract_refresh_token_from_docker_config(host):
+def extract_host_auth_from_docker_config(host):
     try:
         docker_config = os.environ["DOCKER_CONFIG"]
     except KeyError:
@@ -56,7 +58,8 @@ def extract_refresh_token_from_docker_config(host):
         config = loads(f.read())
 
     try:
-        return config.get("auths", {}).get(host).get("identitytoken")
+        info = config.get("auths", {})[host]
+        return (info.get("auth"), info.get("identitytoken"))
     except KeyError:
         LOGGER.info("Identity token not found for %s", host)
         return
@@ -65,26 +68,45 @@ def extract_refresh_token_from_docker_config(host):
 def authenticate(host, scope):
     headers = {"Content-Type": "application/x-www-form-urlencoded"}
     refresh_token = REFRESH_TOKEN
+
+    def query(grant_type, **kwargs):
+        kwargs["grant_type"] = grant_type
+        kwargs["service"] = host
+        return urlencode(kwargs).encode("ascii")
+
     if refresh_token is None:
         if ACCESS_TOKEN:
             r = make_req_json(
                 host,
                 "/oauth2/exchange",
                 method="POST",
-                data=f"grant_type=access_token&access_token={ACCESS_TOKEN}&service={host}".encode("ascii"),
+                data=query("access_token", access_token=ACCESS_TOKEN),
                 **headers,
             )
             refresh_token = r["refresh_token"]
         else:
-            refresh_token = extract_refresh_token_from_docker_config(host)
+            auth = extract_host_auth_from_docker_config(host)
+            if auth is None:
+                return
+            client_creds, refresh_token = auth
+            if client_creds and not refresh_token:
+                username, password = b64decode(client_creds).decode("ascii").split(":")
+                r = make_req_json(
+                    host,
+                    "/oauth2/token",
+                    method="POST",
+                    data=query(
+                        "password", scope=scope, username=username, password=password
+                    ),
+                    **headers,
+                )
+                return r["access_token"]
 
     r = make_req_json(
         host,
         "/oauth2/token",
         method="POST",
-        data=f"grant_type=refresh_token&service={host}&scope={scope}&refresh_token={refresh_token}".encode(
-            "ascii"
-        ),
+        data=query("refresh_token", scope=scope, refresh_token=refresh_token),
         **headers,
     )
 

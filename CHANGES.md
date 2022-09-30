@@ -1,6 +1,12 @@
 Changes
 =======
 
+In next release ...
+
+- Add support for username/password credentials in stored Docker
+  credentials in addition to identity token.
+
+
 2.0 (2022-09-30)
 ----------------
 
