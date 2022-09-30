@@ -162,7 +162,7 @@ def run(old_image, new_image):
     new_repository, new_tag = new_image.split(":")
     old_auth = authenticate(old_host, f"repository:{old_repository}:*")
     new_auth = old_auth
-    if old_host != new_host:
+    if old_host != new_host or old_image != new_image:
         new_auth = authenticate(new_host, f"repository:{new_repository}:*")
     manifest = make_req_json(
         old_host,

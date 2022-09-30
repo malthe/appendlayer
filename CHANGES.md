@@ -1,6 +1,12 @@
 Changes
 =======
 
+In next release ...
+
+- Fix bug where two different repositories would not correctly get
+  authorized for the destination registry.
+
+
 1.1 (2022-09-29)
 ----------------
 
