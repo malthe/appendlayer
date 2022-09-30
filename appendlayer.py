@@ -57,12 +57,12 @@ def extract_host_auth_from_docker_config(host):
     with open(path) as f:
         config = loads(f.read())
 
-    try:
-        info = config.get("auths", {})[host]
-        return (info.get("auth"), info.get("identitytoken"))
-    except KeyError:
+    auths = config.get("auths", {})
+    info = auths.get(host) or auths.get(f"https://{host}")
+    if info is None:
         LOGGER.info("Identity token not found for %s", host)
-        return
+    else:
+        return (info.get("auth"), info.get("identitytoken"))
 
 
 def authenticate(host, scope):

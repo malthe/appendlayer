@@ -1,6 +1,12 @@
 Changes
 =======
 
+In next release ...
+
+- Add support for stored Docker credentials with "https"-based URL
+  instead of hostname as the authentication entry.
+
+
 2.1 (2022-09-30)
 ----------------
 
