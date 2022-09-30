@@ -1,7 +1,8 @@
 Changes
 =======
 
-In next release ...
+1.2 (2022-09-30)
+----------------
 
 - Add support for extracting refresh token from stored Docker
   credentials.

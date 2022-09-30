@@ -11,7 +11,7 @@ def read(name):
 
 setup(
     name="appendlayer",
-    version="1.2-dev",
+    version="1.2",
     description="Append a tarball to an image in a container registry",
     long_description="\n\n".join((read("README"), read("CHANGES"))),
     long_description_content_type="text/markdown",
