@@ -1,2 +1,3 @@
 exclude *
 include appendlayer.py
+include setup.py
